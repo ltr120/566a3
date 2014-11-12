@@ -60,7 +60,7 @@ public class Key extends Block {
 	 */
 	public void random() {
 		Random random = new Random();
-		while (!this.isWeak()) {
+		while (this.isWeak()) {
 			value = new BigInteger(this.size, random);
 		}
 	}
