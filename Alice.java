@@ -9,7 +9,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-
+/*
+ * This is the server side program. i.e. Alice side program.
+ *
+ * Author: Yi Huang, Youhao Wei
+ */
 public class Alice {
     
     ServerSocket alice;
@@ -24,6 +28,11 @@ public class Alice {
     String priFileName;
     private static final String OK = "OK";
 
+    /*
+     * On startup, Alice connect to Alice, then read in RSA key files. After
+     * that, Alice accepts handshake and then start chatting if handshake
+     * is successful.
+     */
     public Alice(String addr, int port, String pubFileName, String priFileName) throws UnknownHostException, IOException {
         alice = new ServerSocket(port, 50, InetAddress.getByName(addr));
         bob = alice.accept();
@@ -37,6 +46,10 @@ public class Alice {
         startChatting();
     }
     
+    /*
+     * Alice uses Bob's public key to construct a RSA encrypter. And she uses her
+     * own private key to construct a RSA decrypter.
+     */
     private void prepareKeys() {
         Scanner pub = RSA.scan_file(pubFileName);
         Key key = new Key(pub.nextLine(), 16);
@@ -50,6 +63,11 @@ public class Alice {
         pri.close();
     }
     
+    /*
+     * Alice accepts the handshake process. She accepts encrypted DES key and decrypts
+     * it with her own private key. Once decrypted, she encrypts the string "OK" and send
+     * it to Bob.
+     */
     private void acceptHandShake() throws IOException {
         String cipher;
         if (in.hasNext()) {
@@ -62,6 +80,11 @@ public class Alice {
         }
     }
     
+    /*
+     * This is the main chatting function. Bob sends the first message and wait
+     * for Alice to type something. Once read Alice's message, Bob can reply to
+     * it, and so on.
+     */
     private void startChatting() throws IOException {
         Scanner stdin = new Scanner(System.in);
         String msg;

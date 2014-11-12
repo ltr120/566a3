@@ -2,7 +2,11 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 
-
+/*
+ * Main class for CHAT part of this assignment.
+ *
+ * Author: Yi Huang, Youhao Wei
+ */
 public class CHAT {
     
     private static boolean aliceFlag = false;
@@ -26,6 +30,10 @@ public class CHAT {
             + "Run this program as Bob, knowing Alice's public key, address, port, and Bob's private key. "
             + "Bob starts up after Alice.\n\n";
 
+    /* 
+     * Main function. This function handles command line options and 
+     * print error messages when command line options are not appropriate.
+     */
     public static void main(String[] args) {
         try {
             parseArguments(args);
@@ -44,7 +52,10 @@ public class CHAT {
         }
     }
     
-
+    /*
+     * This function parses arguments and fill in variables for further steps
+     * to use.
+     */
     private static void parseArguments(String[] args) {
         Iterator<String> it = Arrays.asList(args).iterator();
         String tmp;
@@ -106,6 +117,9 @@ public class CHAT {
         }
     }
 
+    /*
+     * This function is called when there is an error with command line options.
+     */
     private static void exitWithError() {
         System.err.println("Invalid Command Line Options!\n");
         System.err.println(HelpMessage);

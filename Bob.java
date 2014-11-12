@@ -5,7 +5,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-
+/*
+ * Author: Yi Huang, Youhao Wei
+ *
+ * This is a chat client that follows the protocol which does a handshake
+ * with RSA encrypted DES key and use DES to encrypt actual chatting message.
+ */
 public class Bob {
     
     Socket alice;
@@ -18,6 +23,11 @@ public class Bob {
     String pubFileName;
     String priFileName;
 
+    /*
+     * On startup, Bob connect to Alice, then read in RSA key files. After
+     * that, Bob initializes handshake and then start chatting if handshake
+     * is successful.
+     */
     public Bob(String addr, int port, String pubFile, String priFile) throws UnknownHostException, IOException {
         alice = new Socket(addr, port);
         alice.setTcpNoDelay(true);
@@ -30,6 +40,11 @@ public class Bob {
         startChatting();
     }
     
+    /*
+     * This is the main chatting function. Bob sends the first message and wait
+     * for Alice to type something. Once read Alice's message, Bob can reply to
+     * it, and so on.
+     */
     private void startChatting() throws IOException {
         Scanner stdin = new Scanner(System.in);
         String msg;
@@ -52,6 +67,11 @@ public class Bob {
         os.close();
     }
     
+    /*
+     * Bob uses Alice's public key to construct a RSA encrypter. And he uses his
+     * own private key to construct a RSA decrypter. Also, he generates DES key
+     * for later communication.
+     */
     private void prepareKeys() {
         Scanner pub = RSA.scan_file(pubFileName);
         Key key = new Key(pub.nextLine(), 16);
@@ -68,6 +88,12 @@ public class Bob {
         des = new DES(desKey);
     }
     
+    /*
+     * Bob initializes the handshake process. He encrypts DES key and send it to
+     * Alice. Once Alice see's it without a problem, Alice will use the DES key to
+     * encrypt a string "OK" and send it back. When Bob see the OK message, the
+     * handshake is successful.
+     */
     private void initHandShake() throws IOException {
         String str = encrypter.encrypt(desKey.toHex());
         os.writeBytes(str + " ");
