@@ -56,10 +56,12 @@ public class Key extends Block {
 	/**
 	 * Random:
 	 * 
-	 * give the key a random value
+	 * give the key a random value, won't generate weak key value
 	 */
 	public void random() {
 		Random random = new Random();
-		value = new BigInteger(this.size, random);
+		while (!this.isWeak()) {
+			value = new BigInteger(this.size, random);
+		}
 	}
 }
