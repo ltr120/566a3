@@ -134,9 +134,10 @@ public class RSA {
 		// generate two large prime number
 		// the bitsize of prime numbers are key_size/2
 		// since we want the size of n to be key_size
+		BigInteger n = p.multiply(q);
+
 		BigInteger p = BigInteger.probablePrime(key_size/2, new Random());
 		BigInteger q = BigInteger.probablePrime(key_size/2, new Random());
-		BigInteger n = p.multiply(q);
 		
 		// select a small odd integer e relatively prime with Totient of n
 		BigInteger totient = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
@@ -168,6 +169,10 @@ public class RSA {
 		
 	}
 
+	/*
+	Encrypt a message, return the cipher in a String
+	Block is seperated by newline character
+	*/
 	public String encrypt(String message) {
 		InputStream inputStream = new ByteArrayInputStream(message.getBytes());
 		try {
@@ -179,6 +184,9 @@ public class RSA {
 		return "";
 	}
 
+	/*
+	Encrypt the content of input_file and print the result in output file
+	*/
 	private void encrypt(String input_file, String output_file) {
 		try {
 			Scanner pub = scan_file(key_file);
@@ -198,8 +206,11 @@ public class RSA {
 		}
 	}
 
+	/*
+	Core method of encryption, inputStream will be seperate to individual
+	blocks, and padding will be added to the end
+	*/
 	public String encrypt(InputStream inputStream) throws IOException{
-		//System.out.println(output_file);
 		// assume the first line is n and second line is e
 		// use key to store n
 		Block m;
@@ -233,12 +244,9 @@ public class RSA {
 				blockInInt = blockInInt.shiftLeft(8);
 				blockInInt = blockInInt.add(BigInteger.valueOf(b));
 				dataCount++;
-				System.out.println(dataCount + ":" + blockInInt.toString(16));
 			}
 		}
-		System.out.println("Last Block: " + blockInInt.toString(16));
 		int remainingBytes = blockSize/8 - dataCount;
-		System.out.println("remaining bytes: " + remainingBytes);
 		for (int i = 0; i < remainingBytes; i++) {
 			blockInInt = blockInInt.shiftLeft(8);
 		}
@@ -252,17 +260,23 @@ public class RSA {
 			blockInInt = blockInInt.add(BigInteger.valueOf(remainingBytes));
 			result += (encrypt(new DataBlock(blockInInt,blockSize), e).toHex()+"\n");
 		}
-		System.out.println("Last Block after padding: " + blockInInt.toString(16));
 		return result; 
 		
 	}
 
+	/*
+	Some RSA object already know the e part of the key, this is just a backup
+	function in case e is not specified.
+	*/
 	public Block encrypt(Block m) {
 		return encrypt(m, e);
 	}
 	
+	/*
+	n is stored in key object, this method will encrypt block m (assume m is
+	properly padded), and return the cipher in a block.
+	*/
 	private Block encrypt(Block m, BigInteger e) {
-		System.out.println("e:" + e + " | n: " + key.toHex());
 		return new DataBlock(m.value.modPow(e,key.value), key.size); 
 	}
 
@@ -274,6 +288,9 @@ public class RSA {
 		return decrypt(scanner);
 	}
 
+	/*
+	decrypt file and write to output file
+	*/
 	private void decrypt(String input_file, String output_file) {
 		Scanner priv = scan_file(key_file);
 		// assume the first line is n and second line is e
@@ -293,13 +310,16 @@ public class RSA {
 		}
 	}
 
+	/*
+	core method of decryption, it will get rid of the padding after decrypt
+	each cipher block. Assume each block is seperated by new line.
+	*/
 	public String decrypt(Scanner inputScanner) {
 		Block prev = null, curr = null, cipher = null;
 		String result = "";
 		while (inputScanner.hasNextLine()) {
 			cipher = new DataBlock(inputScanner.nextLine(), 16);
 			curr = decrypt(cipher, d);
-			System.out.println("decrypted cipher: " + curr.toHex());
 			if (!inputScanner.hasNextLine() && curr != null) {
 				// if this is the last block
 				// get the padding count
