@@ -134,10 +134,14 @@ public class RSA {
 		// generate two large prime number
 		// the bitsize of prime numbers are key_size/2
 		// since we want the size of n to be key_size
-		BigInteger n = p.multiply(q);
-
-		BigInteger p = BigInteger.probablePrime(key_size/2, new Random());
-		BigInteger q = BigInteger.probablePrime(key_size/2, new Random());
+		BigInteger n = BigInteger.ZERO;
+		BigInteger p = BigInteger.ZERO;
+		BigInteger q = BigInteger.ZERO;
+		while (n.bitLength() < key_size) {
+			p = BigInteger.probablePrime(key_size/2, new Random());
+			q = BigInteger.probablePrime(key_size/2, new Random());
+			n = p.multiply(q);
+		}
 		
 		// select a small odd integer e relatively prime with Totient of n
 		BigInteger totient = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));

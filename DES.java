@@ -167,6 +167,9 @@ public class DES {
 		}
 	}
 
+	/*
+	encrypt content of input stream, 
+	*/
 	private ArrayList<Block> encrypt (InputStream inputStream) {
 		Key[] keys = key_schedule();
 		ArrayList<Block> cipherBlocks = new ArrayList<Block>();
@@ -296,6 +299,10 @@ public class DES {
 		return result;
 	}
 
+	/*
+	decrypt the block with a set of keys (16 keys)
+	this function only do the fiestel cycle.
+	*/
 	private Block decrypt(Block block, Key[] keys) {
 		Key[] reverse_keys = new Key[16];
 		for (int i = 15; i >= 0; i--) {
@@ -310,6 +317,9 @@ public class DES {
 		return result;
 	}
 
+	/*
+	returns 16 keys using key attributes
+	*/
 	private Key[] key_schedule() {
 		Key[] result = new Key[16];
 
@@ -346,6 +356,9 @@ public class DES {
 		return result;
 	}
 
+	/*
+	feistel function, the function accept a 32 bits block and a single key block
+	*/
 	private Block feistel(Block r, Key key) {
 		Scanner e = scan_file("E.tab");
 		// expand permutation
