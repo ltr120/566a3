@@ -27,6 +27,7 @@ public class Alice {
     public Alice(String addr, int port, String pubFileName, String priFileName) throws UnknownHostException, IOException {
         alice = new ServerSocket(port, 50, InetAddress.getByName(addr));
         bob = alice.accept();
+        bob.setTcpNoDelay(true);
         in = new Scanner(bob.getInputStream());
         os = new DataOutputStream(bob.getOutputStream());
         this.pubFileName = pubFileName;
@@ -67,7 +68,7 @@ public class Alice {
         String cipher;
         while (in.hasNext()) {
             cipher = in.next();
-            msg =des.decrypt(cipher);
+            msg = des.decrypt(cipher);
             System.out.println(msg);
             if (stdin.hasNextLine()) {
                 msg = stdin.nextLine();
@@ -75,7 +76,8 @@ public class Alice {
                 break;
             }
             cipher = des.encrypt(msg);
-            os.writeBytes(cipher);
+            os.writeBytes(cipher + " ");
+            os.flush();
         }
         stdin.close();
         in.close();

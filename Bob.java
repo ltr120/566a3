@@ -20,6 +20,7 @@ public class Bob {
 
     public Bob(String addr, int port, String pubFile, String priFile) throws UnknownHostException, IOException {
         alice = new Socket(addr, port);
+        alice.setTcpNoDelay(true);
         in = new Scanner(alice.getInputStream());
         os = new DataOutputStream(alice.getOutputStream());
         this.pubFileName = pubFile;
@@ -36,7 +37,8 @@ public class Bob {
         while (stdin.hasNextLine()) {
             msg = stdin.nextLine();
             cipher = des.encrypt(msg);
-            os.writeBytes(cipher);
+            os.writeBytes(cipher + " ");
+            os.flush();
             if (in.hasNext()) {
                 cipher = in.next();
             } else {
@@ -67,15 +69,13 @@ public class Bob {
     }
     
     private void initHandShake() throws IOException {
-        System.out.println("DES KEY: " + desKey.toHex());
         String str = encrypter.encrypt(desKey.toHex());
-        System.out.println("DES encrypted: " + str);
         os.writeBytes(str + " ");
         String s = in.next();
         System.out.println(s);
         String msg = des.decrypt(s);
         if (!"OK".equals(msg)) {
-            System.err.println("RSA Authentication Failed! Exiting...\n");
+            System.err.println("RSA Authentication Failed! Exiting...");
             System.exit(1);
         }
     }
